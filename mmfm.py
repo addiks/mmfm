@@ -3,3 +3,8 @@
 import sys
 
 sys.path.append("lib/pyMattermost/src")
+
+from src.Application import Application
+
+app = Application(sys.argv)
+app.run()
