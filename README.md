@@ -1,4 +1,4 @@
-mmfm - Mattermost File Monitor
+mmfm - Mattermost File Monitor / Mattermost Bot
 ===================================
 
 A simple deamon that monitor's one or multiple files and post's all new lines to a Mattermost-Server to configured
@@ -6,7 +6,7 @@ channels or users. Handy tool if you want to monitor your error-log's and be ale
 
 ## Set-Up
 
-After you have cloned (and checked out) this repository, make sure to initialize the submodule(s).
+After you have cloned (and checked out) this repository, make sure to initialize the git-submodule(s).
 
 Create a file like the one provided in "assets/configuration.sample.xml" somewhere, modify it's content to fit your
 needs. You need one "monitor" entry per file you want to monitor and channel you want to post into. If you need to post
