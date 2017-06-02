@@ -40,17 +40,33 @@ class Application:
             # Mattermost.ChannelModel
             channelModel = None
 
+            # Mattermost.ServerLoggedInModel
+            serverModel = teamModel.getServer()
 
             for channelModelCandidate in teamModel.getChannels():
-                if channelModelCandidate.getName() == monitorData['channel']:
-                    channelModel = channelModelCandidate
-                    break
-
-            if channelModel == None:
-                for channelModelCandidate in teamModel.searchMoreChannels(monitorData['channel']):
+                if channelModelCandidate.isDirectMessage():
+                    remoteUser = channelModelCandidate.getDirectMessageRemoteUser()
+                    if remoteUser.getUserName() == monitorData['channel']:
+                        channelModel = channelModelCandidate
+                else:
+                    print(channelModelCandidate.getName())
                     if channelModelCandidate.getName() == monitorData['channel']:
                         channelModel = channelModelCandidate
                         break
+
+            if channelModel == None:
+                for channelModelCandidate in teamModel.searchMoreChannels(monitorData['channel']):
+                    print(channelModelCandidate.getName())
+                    if channelModelCandidate.getName() == monitorData['channel']:
+                        channelModel = channelModelCandidate
+                        break
+
+#            if channelModel == None:
+#                for channelMember in teamModel.getChannelMembers():
+#                    print(channelMember.getUser().getUserName())
+#                    print(channelMember.getChannel().getName())
+#                    if channelMember.getUser().getUserName() == monitorData['channel']:
+#                        channelModel = channelMember.getChannel()
 
             if channelModel != None:
                 channelModel.addUser(teamModel.getServer().getSelfUser())
@@ -78,20 +94,14 @@ class Application:
 
             serverModel = ServerModel(serverData['url'])
 
-            print(serverModel)
-
             # Mattermost.ServerLoggedInModel
             loggedInModel = serverModel.login(
                 serverData['username'],
                 serverData['password']
             )
 
-            print(loggedInModel)
-
             # Mattermost.TeamModel
             teamModel = loggedInModel.getTeam(serverData['team'])
-
-            print(teamModel)
 
             self.__teamModels[serverName] = teamModel
         return self.__teamModels[serverName]
