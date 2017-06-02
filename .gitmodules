@@ -1,0 +1,3 @@
+[submodule "pyMattermost"]
+	path = lib/pyMattermost
+	url = git@github.com:addiks/pyMattermost.git
