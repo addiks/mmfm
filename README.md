@@ -16,6 +16,29 @@ Run the python-script "mmfm.py" using the absolute path to the configuration fil
 Make sure the user described in the configuration is already in all channels it is supposed to write into as it
 currently cannot join channel's on it's own.
 
+```
+<?xml version="1.0" encoding="utf-8"?>
+<mmfm-config>
+    <monitor
+        path="/var/log/syslog"
+        server="MyCompany"
+        channel="admins"
+    />
+    <monitor
+        path="/var/www/shop/log/errors.log"
+        server="MyCompany"
+        channel="developers"
+    />
+    <server
+        url="https://mattermost.mycompany.local"
+        team="myTeam"
+        username="mmfm_bot"
+        password="12345678"
+        name="MyCompany"
+    />
+</mmfm-config>
+```
+
 ## Licence
 
 This plugin is licenced under the GNU General Public Licence version 3.
