@@ -23,11 +23,13 @@ currently cannot join channel's on it's own.
         path="/var/log/syslog"
         server="MyCompany"
         channel="admins"
+        prefix="[Message from server 12.34.56.78]"
     />
     <monitor
         path="/var/www/shop/log/errors.log"
         server="MyCompany"
         channel="developers"
+        filter="Fatal error"
     />
     <server
         url="https://mattermost.mycompany.local"

@@ -31,11 +31,18 @@ class ConfigurationModel:
             configurationXml = ElementTree.fromstring(xmlData)
 
             for monitorXml in configurationXml.iter('monitor'):
-                self.__monitors.append({
+                monitor = {
                     'path': monitorXml.get('path'),
                     'server': monitorXml.get('server'),
                     'channel': monitorXml.get('channel'),
-                })
+                }
+                monitorFilter = monitorXml.get('filter')
+                if monitorFilter != None:
+                    monitor['filter'] = monitorFilter
+                monitorPrefix = monitorXml.get('prefix')
+                if monitorPrefix != None:
+                    monitor['prefix'] = monitorPrefix
+                self.__monitors.append(monitor)
 
             for serverXml in configurationXml.iter('server'):
                 self.__servers[serverXml.get('name')] = {
@@ -61,6 +68,12 @@ class ConfigurationModel:
             monitorXml.set('path', monitor['path'])
             monitorXml.set('server', monitor['server'])
             monitorXml.set('channel', monitor['channel'])
+
+            if 'filter' in monitor:
+                monitorXml.set('filter', monitor['filter'])
+
+            if 'prefix' in monitor:
+                monitorXml.set('prefix', monitor['prefix'])
 
         for server in self.__servers:
             serverXml = ElementTree.SubElement(configurationXml, 'server')
