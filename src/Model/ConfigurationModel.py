@@ -36,22 +36,34 @@ class ConfigurationModel:
                     'server': monitorXml.get('server'),
                     'channel': monitorXml.get('channel'),
                 }
+
                 monitorFilter = monitorXml.get('filter')
                 if monitorFilter != None:
                     monitor['filter'] = monitorFilter
+
                 monitorPrefix = monitorXml.get('prefix')
                 if monitorPrefix != None:
                     monitor['prefix'] = monitorPrefix
+
                 self.__monitors.append(monitor)
 
             for serverXml in configurationXml.iter('server'):
-                self.__servers[serverXml.get('name')] = {
+                server = {
                     'url': serverXml.get('url'),
                     'team': serverXml.get('team'),
                     'username': serverXml.get('username'),
-                    'password': serverXml.get('password'),
                     'name': serverXml.get('name'),
                 }
+
+                serverPassword = serverXml.get('password')
+                if serverPassword != None:
+                    server['password'] = serverPassword
+
+                serverAskPassword = serverXml.get('ask-password-on-startup')
+                if serverAskPassword != None:
+                    server['ask-password-on-startup'] = (serverAskPassword.lower() == 'true')
+
+                self.__servers[serverXml.get('name')] = server
 
     def __save(self):
         xmlFilePath = self.__xmlFilePath
@@ -80,8 +92,13 @@ class ConfigurationModel:
             serverXml.set('url', server['url'])
             serverXml.set('team', server['team'])
             serverXml.set('username', server['username'])
-            serverXml.set('password', server['password'])
             serverXml.set('name', server['name'])
+
+            if 'password' in server:
+                serverXml.set('password', server['password'])
+
+            if 'ask-password-on-startup' in server:
+                serverXml.set('ask-password-on-startup', server['ask-password-on-startup'])
 
         xml = ElementTree.ElementTree(configurationXml)
         xml.write(xmlFilePath)

@@ -19,17 +19,16 @@ currently cannot join channel's on it's own.
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <mmfm-config>
+
     <monitor
         path="/var/log/syslog"
         server="MyCompany"
         channel="admins"
-        prefix="[Message from server 12.34.56.78]"
     />
     <monitor
         path="/var/www/shop/log/errors.log"
         server="MyCompany"
         channel="developers"
-        filter="Fatal error"
     />
     <server
         url="https://mattermost.mycompany.local"
@@ -38,6 +37,20 @@ currently cannot join channel's on it's own.
         password="12345678"
         name="MyCompany"
     />
+
+    <monitor
+        path="/home/john_doe/my-program.log"
+        server="johnsDesktop"
+        channel="my-program-log"
+    />
+    <server
+        url="http://192.168.0.123:8065/"
+        team="home"
+        username="john_doe"
+        ask-password-on-startup="true"
+        name="johnsDesktop"
+    />
+
 </mmfm-config>
 ```
 

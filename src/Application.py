@@ -4,6 +4,7 @@ from _thread import start_new_thread
 import os
 import re
 import time
+import getpass
 
 from .Model.ConfigurationModel import ConfigurationModel
 from Mattermost.ServerModel import ServerModel
@@ -110,10 +111,19 @@ class Application:
 
             serverModel = ServerModel(serverData['url'])
 
+            password = ""
+
+            if 'password' in serverData:
+                password = serverData['password']
+
+            elif 'ask-password-on-startup' in serverData and serverData['ask-password-on-startup'] == True:
+                print("Please enter password for server '%s' (%s)." % (serverData['name'], serverData['url']))
+                password = getpass.getpass()
+
             # Mattermost.ServerLoggedInModel
             loggedInModel = serverModel.login(
                 serverData['username'],
-                serverData['password']
+                password
             )
 
             # Mattermost.TeamModel
