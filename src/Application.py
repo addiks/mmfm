@@ -6,6 +6,7 @@ import re
 import time
 import getpass
 
+from .FileReader import FileReader
 from .Model.ConfigurationModel import ConfigurationModel
 from Mattermost.ServerModel import ServerModel
 
@@ -48,7 +49,7 @@ class Application:
             for channelModelCandidate in teamModel.getChannels():
                 if channelModelCandidate.isDirectMessage():
                     remoteUser = channelModelCandidate.getDirectMessageRemoteUser()
-                    if remoteUser.getUserName() == monitorData['channel']:
+                    if remoteUser != None and remoteUser.getUserName() == monitorData['channel']:
                         channelModel = channelModelCandidate
                 else:
                     if channelModelCandidate.getName() == monitorData['channel']:
@@ -83,26 +84,52 @@ class Application:
             time.sleep(3600)
 
     def _monitorFile(self, filePath, channelModel, lineFilter=None, linePrefix=None):
-        print("Monitoring %s" % filePath)
-        fileHandle = open(filePath, 'r')
-        fileHandle.seek(0, 2) # seek to end
+        try:
+            print("Monitoring %s" % filePath)
+            monitor = FileReader(filePath)
 
-        pattern = re.compile(lineFilter)
+            # default line handler: post line to mattermost channel
+            lineHandler = channelModel.createPost
 
-        while True:
-            line = fileHandle.readline()
-            if len(line) > 0:
-                matches = True
-                if lineFilter != None:
-                    matches = (pattern.search(line) != None)
-                if matches:
-                    if linePrefix != None:
-                        channelModel.createPost(str(linePrefix) + line)
+            # wrap the line-handler into a new one with a prefix
+            if linePrefix != None:
+                prePrefixLineHandler = lineHandler
+                lineHandler = lambda line: prePrefixLineHandler(str(linePrefix) + line)
 
-                    else:
-                        channelModel.createPost(line)
-            else:
-                time.sleep(3)
+            # wrap the line-handler into a new one that filters
+            if lineFilter != None:
+                pattern = re.compile(lineFilter)
+                preFilterLineHandler = lineHandler
+                lineHandler = lambda line: self.__filterLineHandler(line, preFilterLineHandler, pattern)
+
+            # main loop for this monitor
+            while True:
+                try:
+                    while monitor.hasNewLines():
+
+                        # handle all lines that are available right now
+                        while monitor.hasNewLines():
+                            line = monitor.fetchLine()
+                            lineHandler(line)
+
+                        # after handling a block of data,
+                        # check after two seconds if there are more lines without closing file
+                        time.sleep(2)
+
+                except FileNotFoundError as exception:
+                    print(exception)
+                    print("Checking again in 10 seconds...")
+
+                # no new lines in the last two seconds, close file and check again after ten seconds
+                monitor.expire()
+                time.sleep(10)
+
+        except FileNotFoundError as exception:
+            print(exception)
+
+    def __filterLineHandler(self, line, innerLineHandler, pattern):
+        if (pattern.search(line) != None):
+            innerLineHandler(line)
 
     def getTeamModel(self, serverName):
         if serverName not in self.__teamModels:
